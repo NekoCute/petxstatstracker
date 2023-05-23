@@ -1,0 +1,70 @@
+local webhook = "https://discordapp.com/api/webhooks/1102203524495974510/FUKuyGJ_3cg6-GnLYrodTRu_4iYqvgX0PXcm_g_giB6sMsR93URgo8xqCQuUvJoKaDme"
+local currencyName = "Diamonds"
+local updateDelay = 60 -- 1 minute
+local playerId = game.Players.LocalPlayer.UserId
+local Library = require(game.ReplicatedStorage.Library)
+Library.Load()
+local function formatNumber(number)
+    return tostring(number):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
+end
+local function getCurrentCurrencyAmount()
+    local saveData = Library.Save.Get()
+    if not saveData then
+        return nil
+    end
+    return saveData[currencyName]
+end
+local function sendUpdate(currentAmount, totalAmount, deltaAmount, totalTime)
+    local embed = {
+        ["title"] = "Update Diamonds",
+        ["color"] = tonumber("0x00FF00", 16), -- Green
+        ["fields"] = {
+            {
+                ["name"] = "Total "..currencyName,
+                ["value"] = formatNumber(currentAmount),
+                ["inline"] = true
+            },
+            {
+                ["name"] = "Total "..currencyName.." Earned",
+                ["value"] = formatNumber(totalAmount).." / "..formatNumber(totalTime).." minutes",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "After 1 mins",
+                ["value"] = formatNumber(deltaAmount),
+                ["inline"] = true
+            }
+        },
+        ["footer"] = {
+            ["text"] = "Skill issue ? Get good bozo"
+        }
+        }
+        
+    (syn and syn.request or http_request or http.request) {
+        Url = webhook;
+        Method = 'POST';
+            Headers = {
+            ['Content-Type'] = 'application/json';
+        };
+        Body = game:GetService('HttpService'):JSONEncode({
+            username = "Thông Số", 
+            avatar_url = 'https://i.imgur.com/ysk9GMR.gif',
+            embeds = {embed} 
+        })
+    }
+end
+local currentAmount = getCurrentCurrencyAmount() or 0
+local totalAmount = 0 -- Initialize to 0 instead of currentAmount
+local last10MinAmount = 0
+local totalTime = 0
+sendUpdate(currentAmount, totalAmount, last10MinAmount, totalTime)
+while true do
+    wait(updateDelay)
+    local newAmount = getCurrentCurrencyAmount() or 0
+    local deltaAmount = newAmount - currentAmount
+    totalAmount = totalAmount + deltaAmount
+    last10MinAmount = deltaAmount
+    currentAmount = newAmount
+    totalTime = totalTime + (updateDelay / 60)
+    sendUpdate(currentAmount, totalAmount, last10MinAmount, totalTime)
+end
