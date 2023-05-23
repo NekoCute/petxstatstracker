@@ -48,7 +48,7 @@ local function sendUpdate(currentAmount, totalAmount, deltaAmount, totalTime)
         };
         Body = game:GetService('HttpService'):JSONEncode({
             username = "Thông Số", 
-            avatar_url = 'https://i.imgur.com/ysk9GMR.gif',
+            avatar_url = 'https://pbs.twimg.com/media/FuNEb1iagAAN3bp?format=jpg&name=medium',
             embeds = {embed} 
         })
     }
